@@ -1,0 +1,263 @@
+openapi: 3.1.0
+info:
+  title: GT Exam API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /exams:
+    get:
+      operationId: listExams
+      parameters:
+        - in: query
+          name: stage
+          schema: { type: integer, enum: [1, 2] }
+        - in: query
+          name: kind
+          schema: { type: string, enum: [PAST_EXAM, PREDICTED] }
+      responses:
+        '200':
+          description: Published mock exams
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ExamSummary' }
+  /exams/{examId}/start:
+    post:
+      operationId: startExam
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+        - in: header
+          name: X-Request-Id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Attempt created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserExam' }
+        '200':
+          description: Existing attempt returned for the same request ID
+  /user-exams/{userExamId}:
+    get:
+      operationId: getUserExam
+      parameters:
+        - $ref: '#/components/parameters/UserExamId'
+      responses:
+        '200':
+          description: Attempt with sessions, questions and saved answers
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserExam' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /user-exams/{userExamId}/sessions/{sessionNo}/start:
+    post:
+      operationId: startExamSession
+      parameters:
+        - $ref: '#/components/parameters/UserExamId'
+        - $ref: '#/components/parameters/SessionNo'
+        - in: header
+          name: X-Request-Id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Session started or existing session returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExamSession' }
+  /user-exams/{userExamId}/answers:
+    post:
+      operationId: saveAnswer
+      parameters:
+        - $ref: '#/components/parameters/UserExamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveAnswerRequest' }
+      responses:
+        '200':
+          description: Saved answer
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SavedAnswer' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /user-exams/{userExamId}/submit:
+    post:
+      operationId: submitExam
+      parameters:
+        - $ref: '#/components/parameters/UserExamId'
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string, minLength: 16, maxLength: 100 }
+      responses:
+        '200':
+          description: Stable result for original or repeated submission
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExamResult' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/review-queue:
+    get:
+      operationId: getReviewQueue
+      responses:
+        '200': { description: Rights-verified OCR source items and review drafts }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/source-question-drafts:
+    post:
+      operationId: createSourceQuestionDraft
+      responses:
+        '201': { description: Question draft submitted for review }
+        '422': { description: Source or official answer evidence is not verified }
+  /admin/source-question-drafts/{draftId}/approve:
+    post:
+      operationId: approveSourceQuestionDraft
+      responses:
+        '200': { description: Draft promoted to an approved immutable question version }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { description: Required review evidence is incomplete or invalid }
+  /admin/exams/{examId}/compose-and-publish:
+    post:
+      operationId: composeAndPublishExam
+      responses:
+        '200': { description: A complete 40-question-per-subject exam was atomically composed and published }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { description: Candidate pool, composition, legal-date, or duplicate validation failed }
+  /me/wrong-notes:
+    get:
+      operationId: listWrongNotes
+      responses:
+        '200': { description: The authenticated user's wrong questions and subject summary }
+        '401': { description: Authentication required }
+  /me/wrong-notes/{questionId}/review:
+    post:
+      operationId: updateWrongNoteReview
+      responses:
+        '200': { description: Personal wrong-note review status and memo updated }
+        '404': { description: Wrong note not found for this user }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    ExamId:
+      in: path
+      name: examId
+      required: true
+      schema: { type: integer, format: int64 }
+    UserExamId:
+      in: path
+      name: userExamId
+      required: true
+      schema: { type: integer, format: int64 }
+    SessionNo:
+      in: path
+      name: sessionNo
+      required: true
+      schema: { type: integer, minimum: 1, maximum: 2 }
+  schemas:
+    ExamSummary:
+      type: object
+      required: [examId, kind, stage, setNo, title, status]
+      properties:
+        examId: { type: integer, format: int64 }
+        kind: { type: string, enum: [PAST_EXAM, PREDICTED] }
+        stage: { type: integer, enum: [1, 2] }
+        setNo: { type: integer, minimum: 1, maximum: 10 }
+        title: { type: string }
+        status: { type: string, enum: [PUBLISHED] }
+    UserExam:
+      type: object
+      required: [userExamId, examId, status, sessions, questions, answers]
+      properties:
+        userExamId: { type: integer, format: int64 }
+        examId: { type: integer, format: int64 }
+        status: { type: string, enum: [CREATED, IN_PROGRESS, SUBMITTED, EXPIRED] }
+        sessions:
+          type: array
+          items: { $ref: '#/components/schemas/ExamSession' }
+        questions:
+          type: array
+          items: { $ref: '#/components/schemas/ExamQuestion' }
+        answers:
+          type: array
+          items: { $ref: '#/components/schemas/SavedAnswer' }
+    ExamSession:
+      type: object
+      required: [sessionNo, status, durationMinutes]
+      properties:
+        sessionNo: { type: integer }
+        status: { type: string, enum: [READY, IN_PROGRESS, SUBMITTED, EXPIRED] }
+        durationMinutes: { type: integer }
+        startedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+    ExamQuestion:
+      type: object
+      description: Correct answer and explanation are intentionally absent before submission.
+      required: [examQuestionId, subjectCode, questionNo, stem, options]
+      properties:
+        examQuestionId: { type: integer, format: int64 }
+        subjectCode: { type: string }
+        questionNo: { type: integer, minimum: 1, maximum: 40 }
+        stem: { type: string }
+        options:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items: { type: string }
+    SaveAnswerRequest:
+      type: object
+      required: [examQuestionId, selectedAnswer, expectedVersion, requestId]
+      properties:
+        examQuestionId: { type: integer, format: int64 }
+        selectedAnswer: { type: integer, minimum: 1, maximum: 5 }
+        expectedVersion: { type: integer, format: int64, minimum: 0 }
+        requestId: { type: string, format: uuid }
+    SavedAnswer:
+      type: object
+      required: [examQuestionId, selectedAnswer, version, savedAt]
+      properties:
+        examQuestionId: { type: integer, format: int64 }
+        selectedAnswer: { type: integer }
+        version: { type: integer, format: int64 }
+        savedAt: { type: string, format: date-time }
+    ExamResult:
+      type: object
+      required: [userExamId, subjectScores, average, passed]
+      properties:
+        userExamId: { type: integer, format: int64 }
+        subjectScores:
+          type: object
+          additionalProperties: { type: number, minimum: 0, maximum: 100 }
+        average: { type: number, minimum: 0, maximum: 100 }
+        passed: { type: boolean }
+    ApiError:
+      type: object
+      required: [code, message, traceId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        traceId: { type: string }
+        fieldErrors:
+          type: array
+          items: { type: object }
+  responses:
+    Forbidden:
+      description: Role or resource ownership violation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Conflict:
+      description: Version, state or idempotency conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }

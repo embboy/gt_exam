@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: gt-exam-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gtexam}
+    username: ${DB_USERNAME:gtexam}
+    password: ${DB_PASSWORD:gtexam}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never

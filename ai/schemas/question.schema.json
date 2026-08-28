@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gtexam.local/schemas/question.schema.json",
+  "title": "GeneratedQuestion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subjectCode",
+    "topicCode",
+    "stem",
+    "options",
+    "correctAnswer",
+    "explanation",
+    "difficulty",
+    "examReferenceDate",
+    "derivedFromQuestionId"
+  ],
+  "properties": {
+    "subjectCode": { "type": "string", "minLength": 1 },
+    "topicCode": { "type": "string", "minLength": 1 },
+    "stem": { "type": "string", "minLength": 10 },
+    "options": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "correctAnswer": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "explanation": { "type": "string", "minLength": 10 },
+    "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "examReferenceDate": { "type": "string", "format": "date" },
+    "derivedFromQuestionId": { "type": "integer", "minimum": 1 },
+    "lawVersionIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 1 }
+    }
+  }
+}

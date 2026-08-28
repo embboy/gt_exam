@@ -1,0 +1,28 @@
+"use client";
+
+import { Clock3, Send, Save } from "lucide-react";
+import { useEffect, useState } from "react";
+
+type Attempt = { userExamId: number; status: string; sessions: { sessionNo: number; status: string; expiresAt: string | null }[]; questions: { examQuestionId: number; subjectCode: string; questionNo: number; stem: string; options: string[] }[]; answers: { examQuestionId: number; selectedAnswer: number; version: number }[] };
+type Answer = { selectedAnswer: number; version: number };
+
+export default function ExamPage({ params }: { params: Promise<{ userExamId: string }> }) {
+  const [attempt, setAttempt] = useState<Attempt | null>(null);
+  const [answers, setAnswers] = useState<Record<number, Answer>>({});
+  const [selected, setSelected] = useState(0);
+  const [notice, setNotice] = useState("");
+  const [now, setNow] = useState(Date.now());
+  const [examId, setExamId] = useState("");
+  useEffect(() => { void params.then(({ userExamId }) => setExamId(userExamId)); }, [params]);
+  useEffect(() => { const interval = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(interval); }, []);
+  useEffect(() => { if (examId) void loadAttempt(); }, [examId]);
+  async function loadAttempt() { const token = window.localStorage.getItem("gt-exam-token"); if (!token) { setNotice("로그인이 필요합니다."); return; } const response = await fetch(`/api/v1/user-exams/${examId}`, { headers: { Authorization: `Bearer ${token}` } }); const data = await response.json() as Attempt & { message?: string }; if (!response.ok) { setNotice(data.message ?? "시험을 불러오지 못했습니다."); return; } setAttempt(data); setAnswers(Object.fromEntries(data.answers.map((answer) => [answer.examQuestionId, { selectedAnswer: answer.selectedAnswer, version: answer.version }]))); }
+  async function choose(questionId: number, selectedAnswer: number) { const token = window.localStorage.getItem("gt-exam-token"); const current = answers[questionId]; if (!token || !attempt) return; setAnswers((value) => ({ ...value, [questionId]: { selectedAnswer, version: current?.version ?? 0 } })); const response = await fetch(`/api/v1/user-exams/${examId}/answers`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ examQuestionId: questionId, selectedAnswer, expectedVersion: current?.version ?? 0, requestId: crypto.randomUUID() }) }); const data = await response.json() as { version?: number; message?: string }; if (!response.ok || data.version === undefined) { setNotice(data.message ?? "답안을 저장하지 못했습니다."); await loadAttempt(); return; } setAnswers((value) => ({ ...value, [questionId]: { selectedAnswer, version: data.version! } })); setNotice("답안을 저장했습니다."); }
+  async function submit() { const token = window.localStorage.getItem("gt-exam-token"); if (!token || !attempt || !window.confirm("제출 후에는 답안을 수정할 수 없습니다. 제출할까요?")) return; const response = await fetch(`/api/v1/user-exams/${examId}/submit`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Idempotency-Key": crypto.randomUUID() } }); const data = await response.json() as { average?: number; passed?: boolean; message?: string }; if (!response.ok) { setNotice(data.message ?? "제출하지 못했습니다."); return; } setNotice(`제출 완료 · 평균 ${data.average?.toFixed(2)}점 · ${data.passed ? "합격" : "불합격"}`); await loadAttempt(); }
+  const question = attempt?.questions[selected];
+  const expiresAt = attempt?.sessions.find((session) => session.status === "IN_PROGRESS")?.expiresAt;
+  const seconds = expiresAt ? Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000)) : 0;
+  if (!attempt) return <main className="examShell"><p>{notice || "시험을 불러오는 중입니다."}</p></main>;
+  if (!question) return <main className="examShell"><p>표시할 문항이 없습니다.</p></main>;
+  return <main className="examShell"><header className="examHeader"><a href="/">GT Exam</a><div><Clock3 size={18} /> {String(Math.floor(seconds / 60)).padStart(2, "0")}:{String(seconds % 60).padStart(2, "0")}</div><button className="primaryButton" type="button" onClick={submit} disabled={attempt.status !== "IN_PROGRESS"}><Send size={17} />제출</button></header><div className="examGrid"><nav className="questionNav" aria-label="문항 이동">{attempt.questions.map((item, index) => <button type="button" className={`${index === selected ? "active" : ""} ${answers[item.examQuestionId] ? "answered" : ""}`} onClick={() => setSelected(index)} key={item.examQuestionId}>{index + 1}</button>)}</nav><article className="questionPane"><p className="questionMeta">{question.subjectCode} · {question.questionNo}번 · {selected + 1}/{attempt.questions.length}</p><h1>{question.stem}</h1><div className="examOptions">{question.options.map((option, index) => <button type="button" className={answers[question.examQuestionId]?.selectedAnswer === index + 1 ? "selected" : ""} onClick={() => choose(question.examQuestionId, index + 1)} key={option}><span>{index + 1}</span>{option}</button>)}</div><p className="saveStatus"><Save size={16} />{notice || `${Object.keys(answers).length}개 답안 저장됨`}</p><div className="examPager"><button className="secondaryButton" type="button" disabled={selected === 0} onClick={() => setSelected((current) => current - 1)}>이전</button><button className="primaryButton" type="button" disabled={selected === attempt.questions.length - 1} onClick={() => setSelected((current) => current + 1)}>다음</button></div></article></div></main>;
+}

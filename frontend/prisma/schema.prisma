@@ -1,0 +1,315 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AppUser {
+  id           BigInt   @id @default(autoincrement()) @map("user_id")
+  email        String   @unique @db.VarChar(320)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  displayName  String   @map("display_name") @db.VarChar(100)
+  role         String   @db.VarChar(30)
+  status       String   @db.VarChar(30)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("app_user")
+}
+
+model Subject {
+  id            BigInt @id @default(autoincrement()) @map("subject_id")
+  code          String @unique @db.VarChar(40)
+  name          String @db.VarChar(200)
+  examStage     Int    @map("exam_stage") @db.SmallInt
+  sessionNo     Int    @map("session_no") @db.SmallInt
+  displayOrder  Int    @map("display_order") @db.SmallInt
+  questionCount Int    @default(40) @map("question_count") @db.SmallInt
+
+  @@unique([examStage, displayOrder])
+  @@map("subject")
+}
+
+model MockExam {
+  id                 BigInt            @id @default(autoincrement()) @map("exam_id")
+  examKind           String            @default("PAST_EXAM") @map("exam_kind") @db.VarChar(30)
+  examStage          Int               @map("exam_stage") @db.SmallInt
+  setNo              Int               @map("set_no") @db.SmallInt
+  title              String            @db.VarChar(200)
+  status             String            @db.VarChar(30)
+  legalReferenceDate DateTime          @map("legal_reference_date") @db.Date
+  publishedAt        DateTime?         @map("published_at") @db.Timestamptz(6)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  sessions           MockExamSession[]
+
+  @@unique([examKind, examStage, setNo])
+  @@map("mock_exam")
+}
+
+model MockExamSession {
+  id              BigInt   @id @default(autoincrement()) @map("exam_session_id")
+  examId          BigInt   @map("exam_id")
+  sessionNo       Int      @map("session_no") @db.SmallInt
+  durationMinutes Int      @map("duration_minutes") @db.SmallInt
+  exam            MockExam @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, sessionNo])
+  @@map("mock_exam_session")
+}
+
+model Question {
+  id               BigInt   @id @default(autoincrement()) @map("question_id")
+  subjectId        BigInt   @map("subject_id")
+  topicId          BigInt?  @map("topic_id")
+  sourceDocumentId BigInt?  @map("source_document_id")
+  sourceItemNo     String?  @map("source_item_no") @db.VarChar(30)
+  sourceType       String   @map("source_type") @db.VarChar(30)
+  status           String   @db.VarChar(30)
+  currentVersionId BigInt?  @map("current_version_id")
+  createdBy        BigInt?  @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([sourceDocumentId, sourceItemNo])
+  @@map("question")
+}
+
+model QuestionVersion {
+  id                BigInt   @id @default(autoincrement()) @map("question_version_id")
+  questionId        BigInt   @map("question_id")
+  versionNo         Int      @map("version_no")
+  questionType      String   @default("SINGLE_CHOICE") @map("question_type") @db.VarChar(30)
+  difficulty        Int      @db.SmallInt
+  stem              String
+  option1           String   @map("option_1")
+  option2           String   @map("option_2")
+  option3           String   @map("option_3")
+  option4           String   @map("option_4")
+  option5           String   @map("option_5")
+  correctAnswer     Int      @map("correct_answer") @db.SmallInt
+  explanation       String
+  examReferenceDate DateTime @map("exam_reference_date") @db.Date
+  normalizedHash    String   @unique @map("normalized_hash") @db.Char(64)
+  createdBy         BigInt?  @map("created_by")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([questionId, versionNo])
+  @@map("question_version")
+}
+
+model QuestionSimilarity {
+  lowerQuestionId  BigInt   @map("lower_question_id")
+  higherQuestionId BigInt   @map("higher_question_id")
+  similarityScore  Decimal  @map("similarity_score") @db.Decimal(8, 6)
+  algorithmVersion String   @map("algorithm_version") @db.VarChar(50)
+  decision         String   @db.VarChar(20)
+  checkedAt        DateTime @default(now()) @map("checked_at") @db.Timestamptz(6)
+
+  @@id([lowerQuestionId, higherQuestionId, algorithmVersion])
+  @@map("question_similarity")
+}
+
+model MockExamQuestion {
+  id                BigInt  @id @default(autoincrement()) @map("exam_question_id")
+  examId            BigInt  @map("exam_id")
+  examSessionId     BigInt  @map("exam_session_id")
+  subjectId         BigInt  @map("subject_id")
+  questionId        BigInt  @map("question_id")
+  questionVersionId BigInt  @map("question_version_id")
+  questionNo        Int     @map("question_no") @db.SmallInt
+  officialSlot      Boolean @default(false) @map("official_slot")
+
+  @@unique([examId, subjectId, questionNo])
+  @@unique([examId, questionId])
+  @@map("mock_exam_question")
+}
+
+model UserExam {
+  id                   BigInt    @id @default(autoincrement()) @map("user_exam_id")
+  userId               BigInt    @map("user_id")
+  examId               BigInt    @map("exam_id")
+  attemptNo            Int       @default(1) @map("attempt_no") @db.SmallInt
+  status               String    @db.VarChar(30)
+  startedAt            DateTime? @map("started_at") @db.Timestamptz(6)
+  submittedAt          DateTime? @map("submitted_at") @db.Timestamptz(6)
+  totalScore           Decimal?  @map("total_score") @db.Decimal(6, 2)
+  passed               Boolean?
+  rowVersion           BigInt    @default(0) @map("row_version")
+  startRequestId       String    @unique @map("start_request_id") @db.Uuid
+  submitIdempotencyKey String?   @map("submit_idempotency_key") @db.VarChar(100)
+
+  @@unique([userId, examId, attemptNo])
+  @@unique([userId, submitIdempotencyKey])
+  @@index([userId, status])
+  @@map("user_exam")
+}
+
+model UserExamSession {
+  id            BigInt    @id @default(autoincrement()) @map("user_exam_session_id")
+  userExamId    BigInt    @map("user_exam_id")
+  examSessionId BigInt    @map("exam_session_id")
+  status        String    @db.VarChar(30)
+  startedAt     DateTime? @map("started_at") @db.Timestamptz(6)
+  expiresAt     DateTime? @map("expires_at") @db.Timestamptz(6)
+  submittedAt   DateTime? @map("submitted_at") @db.Timestamptz(6)
+  rowVersion    BigInt    @default(0) @map("row_version")
+
+  @@unique([userExamId, examSessionId])
+  @@map("user_exam_session")
+}
+
+model UserExamQuestion {
+  userExamId       BigInt @map("user_exam_id")
+  examId           BigInt @map("exam_id")
+  examQuestionId   BigInt @map("exam_question_id")
+  questionId       BigInt @map("question_id")
+  questionVersionId BigInt @map("question_version_id")
+
+  @@id([userExamId, examQuestionId])
+  @@map("user_exam_question")
+}
+
+model UserAnswer {
+  userExamId     BigInt    @map("user_exam_id")
+  examQuestionId BigInt    @map("exam_question_id")
+  selectedAnswer Int?      @map("selected_answer") @db.SmallInt
+  isCorrect      Boolean?  @map("is_correct")
+  answerVersion  BigInt    @default(0) @map("answer_version")
+  lastRequestId  String    @map("last_request_id") @db.Uuid
+  answeredAt     DateTime  @default(now()) @map("answered_at") @db.Timestamptz(6)
+
+  @@id([userExamId, examQuestionId])
+  @@unique([userExamId, lastRequestId])
+  @@map("user_answer")
+}
+
+model UserExamSubjectResult {
+  userExamId  BigInt  @map("user_exam_id")
+  subjectId   BigInt  @map("subject_id")
+  correctCount Int    @map("correct_count") @db.SmallInt
+  score       Decimal @db.Decimal(6, 2)
+  passedCutoff Boolean @map("passed_cutoff")
+
+  @@id([userExamId, subjectId])
+  @@map("user_exam_subject_result")
+}
+
+model WrongHistory {
+  id                BigInt   @id @default(autoincrement()) @map("wrong_history_id")
+  userId            BigInt   @map("user_id")
+  questionId        BigInt   @map("question_id")
+  questionVersionId BigInt   @map("question_version_id")
+  userExamId        BigInt?  @map("user_exam_id")
+  selectedAnswer    Int?     @map("selected_answer") @db.SmallInt
+  attemptedAt       DateTime @default(now()) @map("attempted_at") @db.Timestamptz(6)
+
+  @@index([userId, questionId])
+  @@map("wrong_history")
+}
+
+model WrongNote {
+  userId         BigInt    @map("user_id")
+  questionId     BigInt    @map("question_id")
+  note           String?
+  reviewStatus   String    @default("NEW") @map("review_status") @db.VarChar(20)
+  lastReviewedAt DateTime? @map("last_reviewed_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@id([userId, questionId])
+  @@map("wrong_note")
+}
+
+model AuditLog {
+  id          BigInt    @id @default(autoincrement()) @map("audit_log_id")
+  actorUserId BigInt?   @map("actor_user_id")
+  actorType   String    @map("actor_type") @db.VarChar(30)
+  action      String    @db.VarChar(100)
+  targetType  String    @map("target_type") @db.VarChar(100)
+  targetId    String    @map("target_id") @db.VarChar(100)
+  beforeValue Json?     @map("before_value")
+  afterValue  Json?     @map("after_value")
+  traceId     String    @map("trace_id") @db.VarChar(100)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([targetType, targetId, createdAt(sort: Desc)])
+  @@map("audit_log")
+}
+
+model SourceDocument {
+  id             BigInt             @id @default(autoincrement()) @map("source_document_id")
+  sourceKind     String             @map("source_kind") @db.VarChar(30)
+  examYear       Int?               @map("exam_year") @db.SmallInt
+  title          String             @db.VarChar(300)
+  sourceUrl      String?            @map("source_url")
+  publisher      String?            @db.VarChar(200)
+  checksumSha256 String?            @map("checksum_sha256") @db.Char(64)
+  rightsStatus   String             @map("rights_status") @db.VarChar(30)
+  rightsNote     String?            @map("rights_note")
+  verifiedBy     BigInt?            @map("verified_by")
+  verifiedAt     DateTime?          @map("verified_at") @db.Timestamptz(6)
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  importItems    SourceImportItem[]
+
+  @@unique([sourceKind, examYear, checksumSha256])
+  @@map("source_document")
+}
+
+model SourceImportItem {
+  id                 BigInt         @id @default(autoincrement()) @map("source_import_item_id")
+  sourceDocumentId   BigInt         @map("source_document_id")
+  sourceItemKey      String         @map("source_item_key") @db.VarChar(500)
+  recordType         String         @map("record_type") @db.VarChar(30)
+  pageNo             Int            @map("page_no")
+  pageColumn         String?        @map("page_column") @db.VarChar(10)
+  rawText            String         @map("raw_text")
+  sourceCoordinates  Json           @map("source_coordinates")
+  payload            Json
+  reviewStatus       String         @default("NEEDS_REVIEW") @map("review_status") @db.VarChar(30)
+  promotedQuestionId BigInt?        @map("promoted_question_id")
+  reviewedBy         BigInt?        @map("reviewed_by")
+  reviewedAt         DateTime?      @map("reviewed_at") @db.Timestamptz(6)
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  sourceDocument     SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  questionDrafts     SourceQuestionDraft[] @relation("QuestionTextSource")
+  answerEvidenceFor  SourceQuestionDraft[] @relation("AnswerEvidenceSource")
+
+  @@unique([sourceDocumentId, sourceItemKey])
+  @@index([reviewStatus, sourceDocumentId, pageNo])
+  @@map("source_import_item")
+}
+
+model SourceQuestionDraft {
+  id                         BigInt            @id @default(autoincrement()) @map("source_question_draft_id")
+  sourceImportItemId         BigInt            @map("source_import_item_id")
+  subjectId                  BigInt            @map("subject_id")
+  topicId                    BigInt?           @map("topic_id")
+  sourceQuestionNo           Int               @map("source_question_no") @db.SmallInt
+  difficulty                 Int               @default(3) @db.SmallInt
+  stem                       String
+  option1                    String            @map("option_1")
+  option2                    String            @map("option_2")
+  option3                    String            @map("option_3")
+  option4                    String            @map("option_4")
+  option5                    String            @map("option_5")
+  proposedAnswer             Int?              @map("proposed_answer") @db.SmallInt
+  answerEvidenceImportItemId BigInt?           @map("answer_evidence_import_item_id")
+  explanation                String            @default("")
+  examReferenceDate          DateTime          @default(dbgenerated("'2026-10-31'::date")) @map("exam_reference_date") @db.Date
+  reviewStatus               String            @default("DRAFT") @map("review_status") @db.VarChar(30)
+  reviewerNote               String?           @map("reviewer_note")
+  reviewedBy                 BigInt?           @map("reviewed_by")
+  reviewedAt                 DateTime?         @map("reviewed_at") @db.Timestamptz(6)
+  promotedQuestionId         BigInt?           @map("promoted_question_id")
+  createdAt                  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                  DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  sourceImportItem           SourceImportItem  @relation("QuestionTextSource", fields: [sourceImportItemId], references: [id], onDelete: Cascade)
+  answerEvidenceImportItem   SourceImportItem? @relation("AnswerEvidenceSource", fields: [answerEvidenceImportItemId], references: [id])
+
+  @@unique([sourceImportItemId, sourceQuestionNo])
+  @@index([reviewStatus, subjectId, sourceQuestionNo])
+  @@map("source_question_draft")
+}

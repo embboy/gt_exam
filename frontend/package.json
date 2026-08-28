@@ -1,0 +1,40 @@
+{
+  "name": "gt-exam-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:import-qnet": "tsx scripts/import-qnet.ts",
+    "test:composition": "tsx scripts/test-exam-composition.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.0.0",
+    "jose": "^6.2.10",
+    "lucide-react": "0.468.0",
+    "next": "^16.0.0",
+    "pg": "^8.13.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/pg": "^8.11.10",
+    "@types/react": "19.0.3",
+    "@types/react-dom": "19.0.2",
+    "prisma": "^7.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "5.7.2"
+  }
+}

@@ -10,9 +10,10 @@ import shutil
 import time
 import urllib.parse
 import urllib.request
-import zipfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
+
+from archive_validation import decode_zip_member_name, extract_validated_pdfs
 
 
 BASE_URL = "https://www.q-net.or.kr"
@@ -136,31 +137,11 @@ def _download(url: str, destination: Path, user_agent: str) -> None:
 
 
 def _extract_zip(archive: Path, destination: Path) -> None:
-    if destination.exists():
-        shutil.rmtree(destination)
-    destination.mkdir(parents=True, exist_ok=True)
-    root = destination.resolve()
-    with zipfile.ZipFile(archive) as bundle:
-        for member in bundle.infolist():
-            member_name = _decode_zip_name(member)
-            target = (destination / member_name).resolve()
-            if root not in target.parents and target != root:
-                raise ValueError(f"Unsafe ZIP path: {member_name}")
-            if member.is_dir():
-                target.mkdir(parents=True, exist_ok=True)
-                continue
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with bundle.open(member) as source, target.open("wb") as output:
-                shutil.copyfileobj(source, output)
+    extract_validated_pdfs(archive, destination)
 
 
 def _decode_zip_name(member: zipfile.ZipInfo) -> str:
-    if member.flag_bits & 0x800:
-        return member.filename
-    try:
-        return member.filename.encode("cp437").decode("cp949")
-    except (UnicodeEncodeError, UnicodeDecodeError):
-        return member.filename
+    return decode_zip_member_name(member)
 
 
 def _safe_file_name(value: str) -> str:

@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ocr_questions import _canonical_pdfs, _completed_keys, detect_question_numbers, iter_question_sources
+from ocr_questions import _canonical_pdfs, _completed_keys, detect_question_numbers, iter_question_sources, validated_pdf_paths
 
 
 class OcrQuestionsTest(unittest.TestCase):
@@ -43,6 +43,25 @@ class OcrQuestionsTest(unittest.TestCase):
             }) + "\n", encoding="utf-8")
 
             self.assertEqual({("exam.pdf", 2, "RIGHT")}, _completed_keys(output))
+
+    def test_retries_empty_ocr_records_when_resuming(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "ocr.jsonl"
+            output.write_text(json.dumps({
+                "sourcePdfPath": "exam.pdf", "page": 1, "column": "LEFT", "ocrText": "",
+            }) + "\n", encoding="utf-8")
+
+            self.assertEqual(set(), _completed_keys(output))
+
+    def test_reads_only_validated_pdf_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "validation.json"
+            report.write_text(json.dumps({
+                "validated": [{"status": "VALID", "pdfs": [{"path": "raw/qnet/2025/question/extracted/a.pdf"}]}],
+                "failures": [],
+            }), encoding="utf-8")
+
+            self.assertEqual({"raw/qnet/2025/question/extracted/a.pdf"}, validated_pdf_paths(report))
 
     def test_prefers_form_a_over_duplicate_form_b(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

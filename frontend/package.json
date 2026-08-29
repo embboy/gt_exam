@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:import-qnet": "tsx scripts/import-qnet.ts",
+    "db:import-local-pdf": "tsx scripts/import-local-pdf.ts",
     "test:composition": "tsx scripts/test-exam-composition.ts",
     "postinstall": "prisma generate"
   },

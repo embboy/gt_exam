@@ -1,0 +1,659 @@
+[
+  {
+    "year": 2017,
+    "exam_no": 28,
+    "stage": 1,
+    "session": 1,
+    "form": "A",
+    "file_name": "2017년 제28회 시험문제지_1차 1교시 A형.pdf",
+    "relative_path": "data/raw/local-pdf/2017년 제28회 시험문제지_1차 1교시 A형.pdf",
+    "sha256": "27ea7509cded50a8826a5ca3f567997fb203cddb2cc4c0331d379d4a7ff00bbd",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1695,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1901,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1713,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1935,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 1890,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1233,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1665,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1662,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1646,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1864,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1915,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1309,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2018,
+    "exam_no": 29,
+    "stage": 1,
+    "session": 1,
+    "form": "A",
+    "file_name": "2018년 제29회 시험문제지_1차 1교시 A형.pdf",
+    "relative_path": "data/raw/local-pdf/2018년 제29회 시험문제지_1차 1교시 A형.pdf",
+    "sha256": "4d768035802e9eb93d1766d87b6c0eb428eabcd2b6555a3356678af8f4e4c729",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1447,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1743,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1610,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1693,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 1552,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1394,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1713,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1734,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1700,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1577,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1719,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1766,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2019,
+    "exam_no": 30,
+    "stage": 1,
+    "session": 1,
+    "form": "A",
+    "file_name": "2019년 제30회 시험문제지_1차 1교시 A형.pdf",
+    "relative_path": "data/raw/local-pdf/2019년 제30회 시험문제지_1차 1교시 A형.pdf",
+    "sha256": "cc1dee9d73e0b6bbfbf2058f05fe135392a22b115e3613577f4e7de527c90816",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1595,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1798,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1820,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1901,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 1870,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1533,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1626,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1759,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1786,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1805,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1590,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1838,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2020,
+    "exam_no": 31,
+    "stage": 1,
+    "session": 1,
+    "form": "A",
+    "file_name": "2020년 제31회 시험문제지_1차 1교시 A형.pdf",
+    "relative_path": "data/raw/local-pdf/2020년 제31회 시험문제지_1차 1교시 A형.pdf",
+    "sha256": "7974394dffbcee1f57083fa60b6bcb518908997c0f01e0d86119474e6543cafd",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1613,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1693,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1548,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1578,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 1526,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1383,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1658,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1522,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1673,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1853,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1804,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1770,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2021,
+    "exam_no": 32,
+    "stage": 1,
+    "session": 1,
+    "form": "A",
+    "file_name": "2021년 제32회 공인중개사 자격시험 문제지_1차 1교시 A형.pdf",
+    "relative_path": "data/raw/local-pdf/2021년 제32회 공인중개사 자격시험 문제지_1차 1교시 A형.pdf",
+    "sha256": "2fe3e226deace024223afc58ae0f54e5b9119e5b127347ea8bf8dc074da71dec",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1645,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1896,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1734,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1792,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 2130,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1859,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1853,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1706,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1877,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1839,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1808,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1891,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2022,
+    "exam_no": 33,
+    "stage": 1,
+    "session": 1,
+    "form": null,
+    "file_name": "2022년 제33회 시험문제지_1차 1교시.pdf",
+    "relative_path": "data/raw/local-pdf/2022년 제33회 시험문제지_1차 1교시.pdf",
+    "sha256": "2c57a3b80e2cc53c506dd48b098f21e0641f82e37f98d270ca9d7a84953a33f5",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1500,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1755,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1703,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1728,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 1538,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1735,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1612,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1745,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1903,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1789,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1872,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1645,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2023,
+    "exam_no": 34,
+    "stage": 1,
+    "session": 1,
+    "form": null,
+    "file_name": "2023년 제34회 시험문제지_1차 1교시.pdf",
+    "relative_path": "data/raw/local-pdf/2023년 제34회 시험문제지_1차 1교시.pdf",
+    "sha256": "409cc7d23c7740c36bf2adf2b328e437cbf14a0ed553ca80f02adf4b29c90ba5",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1752,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1970,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1911,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1843,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 2163,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1625,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1661,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1749,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1663,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1793,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 2004,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1818,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2024,
+    "exam_no": 35,
+    "stage": 1,
+    "session": 1,
+    "form": null,
+    "file_name": "2024년 제35회 시험문제지 1차_1교시.pdf",
+    "relative_path": "data/raw/local-pdf/2024년 제35회 시험문제지 1차_1교시.pdf",
+    "sha256": "67d4c9e8cc7b84ebe04a1ca458d00dd7afdccc95e7f71a251684d2579c7ee095",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 1819,
+        "ocrRequired": false
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 1917,
+        "ocrRequired": false
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 1742,
+        "ocrRequired": false
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 2012,
+        "ocrRequired": false
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 1867,
+        "ocrRequired": false
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 1700,
+        "ocrRequired": false
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 1784,
+        "ocrRequired": false
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 1610,
+        "ocrRequired": false
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 1726,
+        "ocrRequired": false
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 1809,
+        "ocrRequired": false
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 1752,
+        "ocrRequired": false
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 1704,
+        "ocrRequired": false
+      }
+    ]
+  },
+  {
+    "year": 2025,
+    "exam_no": 36,
+    "stage": 1,
+    "session": 1,
+    "form": null,
+    "file_name": "2025년 제36회 공인중개사 1차 1교시 문제지.pdf",
+    "relative_path": "data/raw/local-pdf/2025년 제36회 공인중개사 1차 1교시 문제지.pdf",
+    "sha256": "30de17fc5cbd3d12301d49c8f290bf8a7626ed490ba853086c9d30edbebd1f11",
+    "page_count": 12,
+    "page_text": [
+      {
+        "page": 1,
+        "nativeTextChars": 93,
+        "ocrRequired": true
+      },
+      {
+        "page": 2,
+        "nativeTextChars": 132,
+        "ocrRequired": true
+      },
+      {
+        "page": 3,
+        "nativeTextChars": 125,
+        "ocrRequired": true
+      },
+      {
+        "page": 4,
+        "nativeTextChars": 1,
+        "ocrRequired": true
+      },
+      {
+        "page": 5,
+        "nativeTextChars": 27,
+        "ocrRequired": true
+      },
+      {
+        "page": 6,
+        "nativeTextChars": 11,
+        "ocrRequired": true
+      },
+      {
+        "page": 7,
+        "nativeTextChars": 19,
+        "ocrRequired": true
+      },
+      {
+        "page": 8,
+        "nativeTextChars": 63,
+        "ocrRequired": true
+      },
+      {
+        "page": 9,
+        "nativeTextChars": 0,
+        "ocrRequired": true
+      },
+      {
+        "page": 10,
+        "nativeTextChars": 39,
+        "ocrRequired": true
+      },
+      {
+        "page": 11,
+        "nativeTextChars": 79,
+        "ocrRequired": true
+      },
+      {
+        "page": 12,
+        "nativeTextChars": 61,
+        "ocrRequired": true
+      }
+    ]
+  }
+]

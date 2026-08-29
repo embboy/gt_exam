@@ -5,7 +5,17 @@ import unittest
 import zipfile
 from pathlib import Path
 
+import pymupdf
+
 from prepare_incoming import prepare_archives
+
+
+def valid_pdf_bytes() -> bytes:
+    document = pymupdf.open()
+    document.new_page()
+    result = document.tobytes()
+    document.close()
+    return result
 
 
 class PrepareIncomingTest(unittest.TestCase):
@@ -16,7 +26,7 @@ class PrepareIncomingTest(unittest.TestCase):
             incoming.mkdir()
             archive = incoming / "exam.zip"
             with zipfile.ZipFile(archive, "w") as output:
-                output.writestr("questions.pdf", b"%PDF-sample")
+                output.writestr("questions.pdf", valid_pdf_bytes())
             checksum = hashlib.sha256(archive.read_bytes()).hexdigest()
             manifest = root / "manifest.json"
             manifest.write_text(json.dumps([{

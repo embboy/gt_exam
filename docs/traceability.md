@@ -11,7 +11,7 @@
 | BR-011 | `user_exam_question` membership FK | V3 migration | AT-014 |
 | BR-012, BR-013 | per-session server expiry | server expiry, start/save/submit 구현; stage 2 다음 session start transition pending | AT-012, AT-018, AT-019 |
 | FR-001, NFR-005, NFR-006 | signup/login/password routes, bcrypt hash, `AUTH_SECRET` | email/password login and signup; 8~128 password validation; authenticated current-password verification and password change; bcrypt hash and JWT signing implemented | authentication route test pending |
-| BR-014, FR-021, FR-022 | source rights gate and review staging | Q-Net collector/OCR, native-text/OCR answer evidence, per-question review draft, reviewer queue, admin promotion API and review UI implemented | AT-001~AT-003 |
+| BR-014, FR-021, FR-022 | source rights gate and review staging | User-provided PDF checksum manifest, native-text-first/OCR-fallback page extraction, per-question review draft, reviewer queue, admin promotion API and review UI implemented; ZIP/Q-Net source data removed | AT-001~AT-003 |
 | FR-007, FR-027 | score and pass policy | `ScoreCalculator` | AT-020 |
 | FR-009~FR-012 | wrong history/note and learning | submit transaction writes wrong history/note; owner-scoped wrong-note query/review API and UI implemented | AT-022~AT-025 |
 | FR-020 | append-only audit log | V3 migration; question promotion and compose/publish writes implemented | AT-026 |

@@ -34,7 +34,8 @@ def detect_question_numbers(text: str) -> list[int]:
 
 def iter_question_sources(
         manifest_file: Path, index_file: Path, data_root: Path,
-        years: set[int] | None = None) -> Iterator[QuestionSource]:
+    years: set[int] | None = None,
+    validated_pdf_paths: AbstractSet[str] | None = None) -> Iterator[QuestionSource]:
     manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
     exam_numbers = {
         int(record["year"]): int(record["examNo"])
@@ -56,6 +57,9 @@ def iter_question_sources(
         else:
             continue
         for pdf_path in pdfs:
+            relative_pdf_path = pdf_path.relative_to(data_root).as_posix()
+            if validated_pdf_paths is not None and relative_pdf_path not in validated_pdf_paths:
+                continue
             yield QuestionSource(
                 year=year,
                 exam_no=exam_numbers[year],
@@ -70,6 +74,22 @@ def _canonical_pdfs(extracted_root: Path) -> list[Path]:
     pdfs = sorted(extracted_root.rglob("*.pdf"))
     form_a = [path for path in pdfs if "A형" in path.name.upper()]
     return form_a if form_a else pdfs
+
+
+def validated_pdf_paths(validation_report: Path) -> set[str]:
+    report = json.loads(validation_report.read_text(encoding="utf-8"))
+    failures = report.get("failures", [])
+    if failures:
+        raise ValueError(f"PDF validation report contains {len(failures)} failed archive(s)")
+    paths = {
+        str(pdf["path"])
+        for archive in report.get("validated", [])
+        if archive.get("status") == "VALID"
+        for pdf in archive.get("pdfs", [])
+    }
+    if not paths:
+        raise ValueError("PDF validation report has no validated PDFs")
+    return paths
 
 
 def ocr_source(
@@ -142,6 +162,7 @@ def main() -> int:
     parser.add_argument("--index", type=Path, default=Path(__file__).with_name("source_index.json"))
     parser.add_argument("--data-root", type=Path, default=Path("data"))
     parser.add_argument("--output", type=Path, default=Path("data/processed/qnet-question-ocr.jsonl"))
+    parser.add_argument("--validation-report", type=Path, default=Path("data/processed/qnet-pdf-validation.json"))
     parser.add_argument("--tesseract")
     parser.add_argument("--tessdata", type=Path, default=Path("data/tools/tessdata-best"))
     parser.add_argument("--year", type=int, action="append", dest="years")
@@ -152,13 +173,16 @@ def main() -> int:
 
     tesseract = _resolve_tesseract(args.tesseract)
     tessdata = args.tessdata if args.tessdata.is_dir() else None
+    verified_paths = validated_pdf_paths(args.validation_report)
     sources = list(iter_question_sources(
-        args.manifest, args.index, args.data_root, set(args.years) if args.years else None))
+        args.manifest, args.index, args.data_root, set(args.years) if args.years else None,
+        verified_paths))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     completed = _completed_keys(args.output) if not args.overwrite else set()
+    output_path = args.output.with_suffix(args.output.suffix + ".part") if args.overwrite else args.output
     count = 0
     mode = "w" if args.overwrite else "a"
-    with args.output.open(mode, encoding="utf-8", newline="\n") as output:
+    with output_path.open(mode, encoding="utf-8", newline="\n") as output:
         snapshot = frozenset(completed)
         with ThreadPoolExecutor(max_workers=max(1, args.workers)) as executor:
             futures = [
@@ -174,6 +198,8 @@ def main() -> int:
                     output.flush()
                     completed.add(key)
                     count += 1
+    if args.overwrite:
+        output_path.replace(args.output)
     print(f"Wrote {count} review-required OCR column records to {args.output}")
     return 0
 
@@ -186,7 +212,8 @@ def _completed_keys(output: Path) -> set[tuple[str, int, str]]:
         if not line.strip():
             continue
         record = json.loads(line)
-        keys.add((str(record["sourcePdfPath"]), int(record["page"]), str(record["column"])))
+        if str(record.get("ocrText", "")).strip():
+            keys.add((str(record["sourcePdfPath"]), int(record["page"]), str(record["column"])))
     return keys
 
 

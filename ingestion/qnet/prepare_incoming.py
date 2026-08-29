@@ -4,8 +4,9 @@ import argparse
 import hashlib
 import json
 import shutil
-import zipfile
 from pathlib import Path
+
+from archive_validation import extract_validated_pdfs
 
 
 def sha256_file(path: Path) -> str:
@@ -17,20 +18,7 @@ def sha256_file(path: Path) -> str:
 
 
 def _safe_extract_pdf(archive: Path, destination: Path) -> list[Path]:
-    destination.mkdir(parents=True, exist_ok=True)
-    extracted: list[Path] = []
-    with zipfile.ZipFile(archive) as source:
-        for member in source.infolist():
-            member_path = Path(member.filename)
-            if member.is_dir() or member_path.suffix.lower() != ".pdf":
-                continue
-            target = (destination / member_path.name).resolve()
-            if target.parent != destination.resolve():
-                raise ValueError(f"Unsafe ZIP member: {member.filename}")
-            with source.open(member) as input_file, target.open("wb") as output_file:
-                shutil.copyfileobj(input_file, output_file)
-            extracted.append(target)
-    return extracted
+    return extract_validated_pdfs(archive, destination)
 
 
 def prepare_archives(incoming: Path, manifest_path: Path, data_root: Path) -> tuple[list[Path], list[str]]:

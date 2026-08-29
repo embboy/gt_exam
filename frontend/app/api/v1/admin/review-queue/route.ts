@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   const [sourceItems, subjects, answerItems] = await Promise.all([
     prisma.sourceImportItem.findMany({
-      where: { recordType: "OCR_COLUMN", reviewStatus: { in: ["NEEDS_REVIEW", "IN_REVIEW"] } },
+      where: { recordType: { in: ["OCR_COLUMN", "LOCAL_PDF_PAGE"] }, reviewStatus: { in: ["NEEDS_REVIEW", "IN_REVIEW"] } },
       include: {
         sourceDocument: { select: { id: true, examYear: true, title: true, sourceUrl: true, rightsStatus: true } },
         questionDrafts: { orderBy: { sourceQuestionNo: "asc" } },

@@ -37,6 +37,7 @@ button { font: inherit; }
 }
 
 .brand { display: flex; align-items: center; gap: 12px; font-weight: 750; }
+.headerActions { display: flex; align-items: center; gap: 8px; }
 .brandMark {
   width: 34px;
   height: 34px;

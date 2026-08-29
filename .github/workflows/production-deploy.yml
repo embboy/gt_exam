@@ -39,6 +39,19 @@ jobs:
           export FLYWAY_URL="${FLYWAY_CONFIG[0]}"
           export FLYWAY_USER="${FLYWAY_CONFIG[1]}"
           export FLYWAY_PASSWORD="${FLYWAY_CONFIG[2]}"
+          node -e '
+            const { Client } = require("./frontend/node_modules/pg");
+            const client = new Client({ connectionString: process.env.DIRECT_URL });
+            client.connect()
+              .then(() => client.query("SELECT 1"))
+              .then(() => client.end())
+              .catch(async (error) => {
+                console.error(`Direct database connection failed: ${error.message}`);
+                try { await client.end(); } catch {}
+                process.exit(1);
+              });
+          '
+          echo "Direct database connection succeeded; applying Flyway migrations."
           docker run --rm --network host \
             -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD \
             -v "$GITHUB_WORKSPACE/backend/src/main/resources/db/migration:/flyway/sql:ro" \

@@ -7,10 +7,9 @@ import { resolve } from "node:path";
 import prisma from "../lib/prisma";
 
 type AnswerKey = { year: number; examNo: number; stage: 1; session: 1; form: string; answers: number[][]; answerEvidence: { articleId: string; page: number; source: string } };
-type LocalPaper = { year: number; exam_no: number; stage: number; session: number; form: string | null; sha256: string };
 type OfficialAnswer = { year: number; exam_no: number; article_id: string; article_url: string; sha256: string; license: string };
 
-function hash(value: string) {
+function hash(value: string | Uint8Array) {
   return createHash("sha256").update(value).digest("hex");
 }
 
@@ -23,21 +22,26 @@ function validateKey(key: AnswerKey) {
 async function main() {
   const root = resolve(import.meta.dirname, "../..");
   const keys = JSON.parse(readFileSync(resolve(root, "data/processed/official-answer-keys.json"), "utf8")) as AnswerKey[];
-  const papers = JSON.parse(readFileSync(resolve(root, "data/processed/local-pdf-manifest.json"), "utf8")) as LocalPaper[];
   const officialAnswers = JSON.parse(readFileSync(resolve(root, "data/processed/qnet-answer-manifest.json"), "utf8")) as OfficialAnswer[];
 
   for (const key of keys) {
     validateKey(key);
-    const paper = papers.find((item) => item.year === key.year && item.exam_no === key.examNo && item.stage === key.stage && item.session === key.session && item.form === key.form);
+    const paperPath = resolve(root, "frontend/public/past-exams", `${key.year}.pdf`);
+    let paperSha256: string;
+    try {
+      paperSha256 = hash(readFileSync(paperPath));
+    } catch {
+      throw new Error(`Missing original PDF asset for ${key.year}: ${paperPath}`);
+    }
     const answer = officialAnswers.find((item) => item.year === key.year && item.exam_no === key.examNo && item.article_id === key.answerEvidence.articleId && item.license === "KOGL_TYPE_1");
-    if (!paper || !answer) throw new Error(`Missing verified source evidence for ${key.year}`);
+    if (!answer) throw new Error(`Missing verified final-answer evidence for ${key.year}`);
 
     await prisma.$transaction(async (tx) => {
       const source = await tx.sourceDocument.upsert({
-        where: { sourceKind_examYear_checksumSha256: { sourceKind: "PAST_EXAM", examYear: key.year, checksumSha256: paper.sha256 } },
+        where: { sourceKind_examYear_checksumSha256: { sourceKind: "PAST_EXAM", examYear: key.year, checksumSha256: paperSha256 } },
         create: {
           sourceKind: "PAST_EXAM", examYear: key.year, title: `${key.year}년 제${key.examNo}회 제1차 1교시 ${key.form}형`,
-          publisher: "User-provided local PDF", checksumSha256: paper.sha256, rightsStatus: "RIGHTS_VERIFIED",
+          publisher: "User-provided local PDF", checksumSha256: paperSha256, rightsStatus: "RIGHTS_VERIFIED",
           rightsNote: `Question paper and final-answer evidence: ${answer.article_url}, SHA-256 ${answer.sha256}. ${key.answerEvidence.source}`,
         },
         update: { rightsStatus: "RIGHTS_VERIFIED", rightsNote: `Question paper and final-answer evidence: ${answer.article_url}, SHA-256 ${answer.sha256}. ${key.answerEvidence.source}` },
@@ -84,7 +88,7 @@ async function main() {
         });
         const version = await tx.questionVersion.create({ data: {
           questionId: question.id, versionNo: 1, difficulty: 3, stem: `원문 PDF ${index + 1}번`, option1: "1", option2: "2", option3: "3", option4: "4", option5: "5",
-          correctAnswer: key.answers[index][0], explanation: `Q-Net ${key.year}년 제${key.examNo}회 최종정답 기준`, examReferenceDate: new Date(`${key.year}-10-31`), normalizedHash: hash(`${paper.sha256}:${index + 1}`), answerEvidenceImportItemId: answerEvidence.id,
+          correctAnswer: key.answers[index][0], explanation: `Q-Net ${key.year}년 제${key.examNo}회 최종정답 기준`, examReferenceDate: new Date(`${key.year}-10-31`), normalizedHash: hash(`${paperSha256}:${index + 1}`), answerEvidenceImportItemId: answerEvidence.id,
           acceptedAnswers: { createMany: { data: key.answers[index].map((answerValue) => ({ answer: answerValue })) } },
         } });
         await tx.question.update({ where: { id: question.id }, data: { currentVersionId: version.id } });

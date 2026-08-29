@@ -13,6 +13,7 @@
     "db:generate": "prisma generate",
     "db:import-qnet": "tsx scripts/import-qnet.ts",
     "db:import-local-pdf": "tsx scripts/import-local-pdf.ts",
+    "db:import-paper-practice": "tsx scripts/import-paper-practice.ts",
     "test:composition": "tsx scripts/test-exam-composition.ts",
     "postinstall": "prisma generate"
   },

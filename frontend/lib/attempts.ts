@@ -23,7 +23,7 @@ function asNumber(value: Prisma.Decimal | null) {
 }
 
 export async function loadAttempt(userExamId: bigint, userId: bigint) {
-  const attempt = await prisma.userExam.findUnique({ where: { id: userExamId } });
+  const attempt = await prisma.userExam.findUnique({ where: { id: userExamId }, include: { exam: true } });
   if (!attempt) {
     throw new AttemptError(404, "ATTEMPT_NOT_FOUND", "Attempt not found");
   }
@@ -57,6 +57,10 @@ export async function loadAttempt(userExamId: bigint, userId: bigint) {
     submittedAt: attempt.submittedAt?.toISOString() ?? null,
     totalScore: asNumber(attempt.totalScore),
     passed: attempt.passed,
+    paper: attempt.exam.sourcePdfUrl && attempt.exam.sourceExamYear ? {
+      year: attempt.exam.sourceExamYear,
+      pdfUrl: attempt.exam.sourcePdfUrl,
+    } : null,
     sessions: sessions.map((session) => {
       const definition = definitionById.get(session.examSessionId);
       return {
@@ -278,6 +282,7 @@ export async function submitAttempt(userExamId: bigint, userId: bigint, idempote
     });
     const versions = await tx.questionVersion.findMany({
       where: { id: { in: snapshots.map((item) => item.questionVersionId) } },
+      include: { acceptedAnswers: true },
     });
     const answers = await tx.userAnswer.findMany({ where: { userExamId } });
     const answerByQuestion = new Map(answers.map((answer) => [answer.examQuestionId, answer]));
@@ -290,13 +295,13 @@ export async function submitAttempt(userExamId: bigint, userId: bigint, idempote
       const version = snapshot && versionById.get(snapshot.questionVersionId);
       await tx.userAnswer.update({
         where: { userExamId_examQuestionId: { userExamId, examQuestionId: answer.examQuestionId } },
-        data: { isCorrect: version?.correctAnswer === answer.selectedAnswer },
+        data: { isCorrect: isAcceptedAnswer(version, answer.selectedAnswer) },
       });
     }
     const now = new Date();
     const wrongSnapshots = snapshots.filter((snapshot) => {
       const version = versionById.get(snapshot.questionVersionId);
-      return version?.correctAnswer !== answerByQuestion.get(snapshot.examQuestionId)?.selectedAnswer;
+      return !isAcceptedAnswer(version, answerByQuestion.get(snapshot.examQuestionId)?.selectedAnswer);
     });
     if (wrongSnapshots.length > 0) {
       await tx.wrongHistory.createMany({
@@ -323,7 +328,7 @@ export async function submitAttempt(userExamId: bigint, userId: bigint, idempote
       const correctCount = subjectQuestions.filter((question) => {
         const snapshot = snapshots.find((item) => item.examQuestionId === question.id);
         const version = snapshot && versionById.get(snapshot.questionVersionId);
-        return version?.correctAnswer === answerByQuestion.get(question.id)?.selectedAnswer;
+        return isAcceptedAnswer(version, answerByQuestion.get(question.id)?.selectedAnswer);
       }).length;
       const score = subjectQuestions.length === 0 ? 0 : correctCount * 100 / subjectQuestions.length;
       scores.push(score);
@@ -370,4 +375,14 @@ async function resultResponse(tx: Prisma.TransactionClient, userExamId: bigint) 
     average: attempt.totalScore?.toNumber() ?? 0,
     passed: attempt.passed ?? false,
   };
+}
+
+function isAcceptedAnswer(
+  version: { correctAnswer: number; acceptedAnswers: { answer: number }[] } | undefined,
+  selectedAnswer: number | null | undefined,
+) {
+  if (!version || !selectedAnswer) return false;
+  return version.acceptedAnswers.length === 0
+    ? version.correctAnswer === selectedAnswer
+    : version.acceptedAnswers.some((item) => item.answer === selectedAnswer);
 }

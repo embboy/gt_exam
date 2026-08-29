@@ -42,8 +42,12 @@ model MockExam {
   status             String            @db.VarChar(30)
   legalReferenceDate DateTime          @map("legal_reference_date") @db.Date
   publishedAt        DateTime?         @map("published_at") @db.Timestamptz(6)
+  sourceExamYear     Int?              @map("source_exam_year") @db.SmallInt
+  sourcePdfUrl       String?           @map("source_pdf_url")
+  isHistoricalPaper  Boolean           @default(false) @map("is_historical_paper")
   createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   sessions           MockExamSession[]
+  userExams          UserExam[]
 
   @@unique([examKind, examStage, setNo])
   @@map("mock_exam")
@@ -93,11 +97,23 @@ model QuestionVersion {
   explanation       String
   examReferenceDate DateTime @map("exam_reference_date") @db.Date
   normalizedHash    String   @unique @map("normalized_hash") @db.Char(64)
+  answerEvidenceImportItemId BigInt? @map("answer_evidence_import_item_id")
   createdBy         BigInt?  @map("created_by")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  acceptedAnswers  QuestionVersionAcceptedAnswer[]
+  answerEvidenceImportItem SourceImportItem? @relation("QuestionVersionAnswerEvidence", fields: [answerEvidenceImportItemId], references: [id])
 
   @@unique([questionId, versionNo])
   @@map("question_version")
+}
+
+model QuestionVersionAcceptedAnswer {
+  questionVersionId BigInt          @map("question_version_id")
+  answer            Int             @db.SmallInt
+  questionVersion   QuestionVersion @relation(fields: [questionVersionId], references: [id], onDelete: Cascade)
+
+  @@id([questionVersionId, answer])
+  @@map("question_version_accepted_answer")
 }
 
 model QuestionSimilarity {
@@ -140,6 +156,7 @@ model UserExam {
   rowVersion           BigInt    @default(0) @map("row_version")
   startRequestId       String    @unique @map("start_request_id") @db.Uuid
   submitIdempotencyKey String?   @map("submit_idempotency_key") @db.VarChar(100)
+  exam                 MockExam  @relation(fields: [examId], references: [id])
 
   @@unique([userId, examId, attemptNo])
   @@unique([userId, submitIdempotencyKey])
@@ -276,6 +293,7 @@ model SourceImportItem {
   sourceDocument     SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
   questionDrafts     SourceQuestionDraft[] @relation("QuestionTextSource")
   answerEvidenceFor  SourceQuestionDraft[] @relation("AnswerEvidenceSource")
+  answerEvidenceForVersions QuestionVersion[] @relation("QuestionVersionAnswerEvidence")
 
   @@unique([sourceDocumentId, sourceItemKey])
   @@index([reviewStatus, sourceDocumentId, pageNo])

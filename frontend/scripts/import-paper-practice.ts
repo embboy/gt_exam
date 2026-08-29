@@ -59,9 +59,9 @@ async function main() {
         create: {
           sourceDocumentId: answerSource.id, sourceItemKey: `ANSWER_PAGE:${key.answerEvidence.page}:${key.form}`, recordType: "ANSWER_PAGE", pageNo: key.answerEvidence.page,
           rawText: `${key.year}년 제${key.examNo}회 제1차 ${key.form}형 공식 최종정답`, sourceCoordinates: { page: key.answerEvidence.page, form: key.form },
-          payload: { articleId: key.answerEvidence.articleId, articleUrl: answer.article_url, sha256: answer.sha256, license: answer.license }, reviewStatus: "APPROVED",
+          payload: { articleId: key.answerEvidence.articleId, articleUrl: answer.article_url, sha256: answer.sha256, license: answer.license }, reviewStatus: "ACCEPTED",
         },
-        update: { rawText: `${key.year}년 제${key.examNo}회 제1차 ${key.form}형 공식 최종정답`, payload: { articleId: key.answerEvidence.articleId, articleUrl: answer.article_url, sha256: answer.sha256, license: answer.license }, reviewStatus: "APPROVED", updatedAt: new Date() },
+        update: { rawText: `${key.year}년 제${key.examNo}회 제1차 ${key.form}형 공식 최종정답`, payload: { articleId: key.answerEvidence.articleId, articleUrl: answer.article_url, sha256: answer.sha256, license: answer.license }, reviewStatus: "ACCEPTED", updatedAt: new Date() },
       });
       const subjects = await tx.subject.findMany({ where: { examStage: 1 }, orderBy: { displayOrder: "asc" } });
       if (subjects.length !== 2) throw new Error("First-stage subject definitions are missing");

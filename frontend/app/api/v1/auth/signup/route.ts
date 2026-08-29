@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 const signupSchema = z.object({
   email: z.email().max(320).transform((value) => value.toLowerCase()),
-  password: z.string().min(12).max(128),
+  password: z.string().min(8).max(128),
   displayName: z.string().trim().min(1).max(100),
 });
 

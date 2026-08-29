@@ -2,6 +2,10 @@ name: import-paper-practice
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["production-deploy"]
+    types: [completed]
+    branches: [main]
 
 concurrency:
   group: production-paper-practice-import
@@ -9,6 +13,7 @@ concurrency:
 
 jobs:
   import-reviewed-papers:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production

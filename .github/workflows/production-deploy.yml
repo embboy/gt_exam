@@ -29,11 +29,21 @@ jobs:
         env:
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
-          JDBC_URL="${DIRECT_URL/#postgresql:/jdbc:postgresql:}"
+          readarray -t FLYWAY_CONFIG < <(node -e '
+            const connection = new URL(process.env.DIRECT_URL);
+            const port = connection.port || "5432";
+            console.log(`jdbc:postgresql://${connection.hostname}:${port}${connection.pathname}${connection.search}`);
+            console.log(decodeURIComponent(connection.username));
+            console.log(decodeURIComponent(connection.password));
+          ')
+          export FLYWAY_URL="${FLYWAY_CONFIG[0]}"
+          export FLYWAY_USER="${FLYWAY_CONFIG[1]}"
+          export FLYWAY_PASSWORD="${FLYWAY_CONFIG[2]}"
           docker run --rm --network host \
+            -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD \
             -v "$GITHUB_WORKSPACE/backend/src/main/resources/db/migration:/flyway/sql:ro" \
             flyway/flyway:11-alpine \
-            -connectRetries=10 -url="$JDBC_URL" migrate
+            -connectRetries=3 migrate
       - name: Pull Vercel production environment
         run: npx --yes vercel@latest pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
         env:

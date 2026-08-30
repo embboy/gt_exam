@@ -89,8 +89,8 @@ async function main() {
         const version = await tx.questionVersion.create({ data: {
           questionId: question.id, versionNo: 1, difficulty: 3, stem: `원문 PDF ${index + 1}번`, option1: "1", option2: "2", option3: "3", option4: "4", option5: "5",
           correctAnswer: key.answers[index][0], explanation: `Q-Net ${key.year}년 제${key.examNo}회 최종정답 기준`, examReferenceDate: new Date(`${key.year}-10-31`), normalizedHash: hash(`${paperSha256}:${index + 1}`), answerEvidenceImportItemId: answerEvidence.id,
-          acceptedAnswers: { createMany: { data: key.answers[index].map((answerValue) => ({ answer: answerValue })) } },
         } });
+        await tx.questionVersionAcceptedAnswer.createMany({ data: key.answers[index].map((answerValue) => ({ questionVersionId: version.id, answer: answerValue })) });
         await tx.question.update({ where: { id: question.id }, data: { currentVersionId: version.id } });
         await tx.mockExamQuestion.create({ data: { examId: exam.id, examSessionId: session.id, subjectId: subject.id, questionId: question.id, questionVersionId: version.id, questionNo: (index % 40) + 1, officialSlot: true } });
       }
